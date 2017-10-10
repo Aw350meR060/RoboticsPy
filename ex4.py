@@ -1,6 +1,8 @@
 import math
 from PIL import Image, ImageDraw
 import numpy as np
+import numpy.random as rand
+from scipy.spatial import Delaunay
 
 
 def distance(ax, ay, bx, by):
@@ -14,16 +16,14 @@ def rotation(ax, ay, bx, by, angle):
         round(by + radius * math.sin(angle)),
     )
 
+
 image = Image.new('RGB',(400, 400), "white")
 draw = ImageDraw.Draw(image)
-image.save("output4.png")
 
-
-img = Image.open("output4.png")
-width, height = img.size
+width, height = image.size
 white = (255, 255, 255)
 lightblue = (128, 194, 255)
-pixel = img.load()
+pixel = image.load()
 
 delta = 30
 whites = []
@@ -33,8 +33,8 @@ for x1 in range (2, width - 2):
         if pixel[x1, y1] == white:
             whites.append([x1, y1])
 
-x = np.asscalar(np.random.randint(0,width,1))
-y = np.asscalar(np.random.randint(0,height,1))
+x = np.asscalar(np.random.randint(3,width-3,1))
+y = np.asscalar(np.random.randint(3,height-3,1))
 dps = []
 if [x, y] in whites:
     dps.append([x, y])
@@ -58,5 +58,13 @@ for i in dps:
         for k in range(i[1] - 2, i[1] + 2):
             pixel[j, k] = (0, 0, 0)
 
+points = np.array(dps)
+tri = Delaunay(points)
 
-img.save("output4.png")
+
+for triangle in points[tri.simplices]:
+    draw.line(((triangle[0][0], triangle[0][1]), (triangle[1][0], triangle[1][1])), fill="black")
+    draw.line(((triangle[1][0], triangle[1][1]), (triangle[2][0], triangle[2][1])), fill="black")
+    draw.line(((triangle[2][0], triangle[2][1]), (triangle[0][0], triangle[0][1])), fill="black")
+
+image.save("output4.png")
